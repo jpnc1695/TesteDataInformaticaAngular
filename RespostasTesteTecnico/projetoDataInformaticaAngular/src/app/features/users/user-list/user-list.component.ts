@@ -19,28 +19,29 @@ import { UserFormModalComponent } from '../user-form-modal/user-form-modal.compo
   imports: [CommonModule, ReactiveFormsModule, UserFormModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- Header -->
-    <header class="bg-header text-white flex items-center gap-6 px-6 h-14 shadow">
-      <button class="p-1 hover:bg-white/10 rounded" aria-label="Menu">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
-             viewBox="0 0 24 24"><path stroke-linecap="round"
-             d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+   <!-- Header -->
+<header class="bg-gray-600 text-white flex items-center gap-6 px-6 h-14 shadow">
+  <button class="p-1 hover:bg-white/10 rounded" aria-label="Menu">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+         viewBox="0 0 24 24">
+      <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
 
-      <h1 class="text-base tracking-widest uppercase">Usuários</h1>
+  <h1 class="text-base tracking-widest uppercase">Usuários</h1>
 
-      <div class="relative w-80">
-        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-        </svg>
-        <input [formControl]="filterCtrl"
-               placeholder="Pesquisar..."
-               class="w-full bg-white text-sm text-ink placeholder-gray-500
-                      pl-9 pr-3 py-2 border border-white/40 rounded-sm
-                      outline-none focus:border-white" />
-      </div>
-    </header>
+  <div class="relative w-80">
+    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+    </svg>
+    <input [formControl]="filterCtrl"
+           placeholder="Pesquisar..."
+           class="w-full bg-white text-sm text-gray-800 placeholder-gray-500
+                  pl-9 pr-3 py-2 border border-white/40 rounded-sm
+                  outline-none focus:border-white" />
+  </div>
+</header>
 
     <!-- Conteúdo -->
     <main class="p-8">
