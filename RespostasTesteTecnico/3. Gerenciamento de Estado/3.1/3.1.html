@@ -1,0 +1,27 @@
+<section class="carrinho">
+  <h2>Carrinho</h2>
+
+  <ul>
+    @for (item of itens(); track item.id) {
+      <li>
+        <span>{{ item.nome }}</span>
+        <span>{{ item.preco | currency:'BRL' }}</span>
+        <span>Qtd: {{ item.quantidade }}</span>
+
+        <button type="button" (click)="adicionar(item.id)">+</button>
+        <button
+          type="button"
+          (click)="remover(item.id)"
+          [disabled]="item.quantidade === 0"
+        >
+          −
+        </button>
+        <button type="button" (click)="removerItem(item.id)">Remover</button>
+      </li>
+    }
+  </ul>
+
+  <p class="total">Total: {{ total() | currency:'BRL' }}</p>
+
+  <button type="button" (click)="limpar()">Limpar carrinho</button>
+</section>
