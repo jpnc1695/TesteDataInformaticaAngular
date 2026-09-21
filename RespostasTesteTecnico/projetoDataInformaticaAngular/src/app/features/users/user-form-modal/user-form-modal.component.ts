@@ -1,9 +1,10 @@
 import {
-  ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject,
+  ChangeDetectionStrategy, Component, EventEmitter, Input,
+  OnInit, Output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { User, UserPayload } from '../../../core/models/user.model';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { User, UserPayload, PhoneType } from '../../../core/models/user.model';
 import { cpfValidator } from '../../../core/validators/cpf.validator';
 import { phoneValidator } from '../../../core/validators/phone.validator';
 
@@ -15,11 +16,11 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
   template: `
     <div class="fixed inset-0 z-40 bg-black/25 flex items-center justify-center p-4"
          (click)="close.emit()">
-      <div class="bg-white w-full max-w-3xl rounded-sm shadow-2xl p-8"
+      <div class="bg-white w-full max-w-3xl rounded shadow-2xl p-8 max-h-[90vh] overflow-auto"
            role="dialog" aria-modal="true"
            (click)="$event.stopPropagation()">
 
-        <h2 class="text-base font-semibold text-ink mb-6">
+        <h2 class="text-base font-semibold text-gray-800 mb-6">
           {{ isEdit ? 'Editar usuário' : 'Adicionar novo usuário' }}
         </h2>
 
@@ -29,7 +30,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
           <div>
             <input formControlName="email" type="email"
                    placeholder="Usuário (e-mail) *"
-                   class="w-full border-0 border-b border-gray-300 focus:border-link
+                   class="w-full border-0 border-b border-gray-300 focus:border-blue-600
                           focus:ring-0 px-0 py-2 text-sm placeholder-gray-400
                           bg-transparent outline-none transition-colors" />
             @if (form.controls.email.touched && form.controls.email.invalid) {
@@ -44,7 +45,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
           <div>
             <input formControlName="name" type="text"
                    placeholder="Nome completo *"
-                   class="w-full border-0 border-b border-gray-300 focus:border-link
+                   class="w-full border-0 border-b border-gray-300 focus:border-blue-600
                           focus:ring-0 px-0 py-2 text-sm placeholder-gray-400
                           bg-transparent outline-none transition-colors" />
             @if (form.controls.name.touched && form.controls.name.invalid) {
@@ -57,7 +58,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
             <div class="col-span-5">
               <input formControlName="cpf" type="text" maxlength="14"
                      placeholder="CPF *"
-                     class="w-full border-0 border-b border-gray-300 focus:border-link
+                     class="w-full border-0 border-b border-gray-300 focus:border-blue-600
                             focus:ring-0 px-0 py-2 text-sm placeholder-gray-400
                             bg-transparent outline-none transition-colors" />
               @if (form.controls.cpf.touched && form.controls.cpf.invalid) {
@@ -71,7 +72,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
             <div class="col-span-4">
               <input formControlName="phone" type="tel"
                      placeholder="Número do telefone *"
-                     class="w-full border-0 border-b border-gray-300 focus:border-link
+                     class="w-full border-0 border-b border-gray-300 focus:border-blue-600
                             focus:ring-0 px-0 py-2 text-sm placeholder-gray-400
                             bg-transparent outline-none transition-colors" />
               @if (form.controls.phone.touched && form.controls.phone.invalid) {
@@ -84,7 +85,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
 
             <div class="col-span-3">
               <select formControlName="phoneType"
-                      class="w-full border-0 border-b border-gray-300 focus:border-link
+                      class="w-full border-0 border-b border-gray-300 focus:border-blue-600
                              focus:ring-0 px-0 py-2 text-sm font-medium uppercase
                              tracking-wide bg-transparent outline-none transition-colors">
                 <option value="mobile">CELULAR</option>
@@ -94,16 +95,16 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
             </div>
           </div>
 
-          <p class="text-xs text-link pt-1">
+          <p class="text-xs text-blue-600 pt-1">
             O usuário receberá uma senha provisória para acesso ao sistema por SMS.
           </p>
 
           <div class="pt-2">
             <button type="submit"
                     [disabled]="form.invalid"
-                    class="px-6 py-2 text-sm font-semibold text-white bg-link
-                           hover:brightness-110 disabled:opacity-50
-                           disabled:cursor-not-allowed uppercase rounded-sm transition">
+                    class="px-6 py-2 text-sm font-semibold text-white bg-blue-600
+                           hover:bg-blue-700 disabled:opacity-50
+                           disabled:cursor-not-allowed uppercase rounded transition">
               Salvar
             </button>
           </div>
@@ -112,8 +113,7 @@ import { phoneValidator } from '../../../core/validators/phone.validator';
     </div>
   `,
 })
-export class UserFormModalComponent {
-  private fb = inject(FormBuilder);
+export class UserFormModalComponent implements OnInit {
 
   @Input() user: User | null = null;
   @Output() close = new EventEmitter<void>();
@@ -121,13 +121,26 @@ export class UserFormModalComponent {
 
   get isEdit() { return !!this.user; }
 
-  readonly form = this.fb.nonNullable.group({
-    email:     [this.user?.email ?? '',     [Validators.required, Validators.email]],
-    name:      [this.user?.name ?? '',      [Validators.required]],
-    cpf:       [this.user?.cpf ?? '',       [Validators.required, cpfValidator()]],
-    phone:     [this.user?.phone ?? '',     [Validators.required, phoneValidator()]],
-    phoneType: [this.user?.phoneType ?? 'mobile', [Validators.required]],
+  // 👇 Genérico <{...}> tipa cada campo do form, incluindo phoneType como PhoneType
+  readonly form = new FormGroup({
+    email:     new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    name:      new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    cpf:       new FormControl<string>('', { nonNullable: true, validators: [Validators.required, cpfValidator()] }),
+    phone:     new FormControl<string>('', { nonNullable: true, validators: [Validators.required, phoneValidator()] }),
+    phoneType: new FormControl<PhoneType>('mobile', { nonNullable: true, validators: [Validators.required] }),
   });
+
+  ngOnInit(): void {
+    if (this.user) {
+      this.form.patchValue({
+        email:     this.user.email,
+        name:      this.user.name,
+        cpf:       this.user.cpf,
+        phone:     this.user.phone,
+        phoneType: this.user.phoneType,   // ✅ valor do usuário, tipo correto
+      });
+    }
+  }
 
   submit(): void {
     if (this.form.invalid) {
