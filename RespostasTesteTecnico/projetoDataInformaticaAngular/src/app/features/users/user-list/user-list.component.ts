@@ -12,16 +12,18 @@ import {
 import { UsersService } from '../../../core/data-access/users.service';
 import { User, UserPayload } from '../../../core/models/user.model';
 import { UserFormModalComponent } from '../user-form-modal/user-form-modal.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, UserFormModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, UserFormModalComponent, MatTooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
    <!-- Header -->
 <header class="bg-gray-600 text-white flex items-center gap-6 px-6 h-14 shadow">
-  <button class="p-1 hover:bg-white/10 rounded" aria-label="Menu">
+  <button class="p-1 hover:bg-white/10 rounded" aria-label="Menu" matTooltip="Menu"
+          matTooltipPosition="right">
     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
          viewBox="0 0 24 24">
       <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/>
@@ -79,7 +81,7 @@ import { UserFormModalComponent } from '../user-form-modal/user-form-modal.compo
 
               <span class="text-sm text-ink text-center truncate">{{ u.email }}</span>
 
-              <button (click)="openEdit(u)" aria-label="Editar"
+              <button (click)="openEdit(u)" aria-label="Editar" matTooltip="Editar usuário" matTooltipPosition="above"
                       class="justify-self-end text-gray-600 hover:text-link transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                      viewBox="0 0 24 24">
@@ -93,13 +95,15 @@ import { UserFormModalComponent } from '../user-form-modal/user-form-modal.compo
       }
     </main>
 
-    <!-- FAB vermelho -->
-    <button (click)="openCreate()" aria-label="Novo usuário"
-            class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-fab text-white
-                   shadow-lg hover:brightness-110 active:scale-95 transition
-                   flex items-center justify-center">
+   <!-- FAB vermelho -->
+    <button (click)="openCreate()"  matTooltip="Adicionar novo usuário"
+        matTooltipPosition="left"
+         aria-label="Novo usuário" 
+            class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-red-600 text-white
+                  shadow-lg hover:bg-red-700 active:scale-95 transition
+                  flex items-center justify-center">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3"
-           viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+          viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
     </button>
 
     <!-- Modal -->
