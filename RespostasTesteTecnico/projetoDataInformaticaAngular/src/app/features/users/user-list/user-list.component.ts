@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  catchError, debounceTime, distinctUntilChanged, finalize,
-  of, startWith, switchMap, tap,
+  EMPTY, catchError, debounceTime, distinctUntilChanged, finalize,
+  map, merge, of, startWith, Subject, switchMap, tap,
 } from 'rxjs';
 
 import { UsersService } from '../../../core/data-access/users.service';
@@ -127,11 +127,24 @@ export class UserListComponent {
   readonly modalOpen = signal(false);
   readonly editing = signal<User | null>(null);
 
+  private readonly refresh$ = new Subject<void>();
+
+
   constructor() {
-    this.filterCtrl.valueChanges.pipe(
+    // Fluxo do filtro: emite quando o usuário digita (com distinct)
+    const filter$ = this.filterCtrl.valueChanges.pipe(
       startWith(''),
-      debounceTime(300),
       distinctUntilChanged(),
+    );
+  
+    // Fluxo de refresh manual: emite sempre, sem distinct
+    const refresh$ = this.refresh$.pipe(
+      map(() => this.filterCtrl.value),
+    );
+  
+    // Junta os dois
+    merge(filter$, refresh$).pipe(
+      debounceTime(300),
       tap(() => { this.loading.set(true); this.error.set(null); }),
       switchMap(term =>
         this.service.list(term).pipe(
@@ -146,24 +159,28 @@ export class UserListComponent {
     ).subscribe(list => this.users.set(list));
   }
 
-  retry(): void { this.filterCtrl.setValue(this.filterCtrl.value); }
+  retry(): void { this.refresh$.next(); }
 
-  openCreate(): void { this.editing.set(null); this.modalOpen.set(true); }
-  openEdit(u: User): void { this.editing.set(u); this.modalOpen.set(true); }
-  closeModal(): void { this.modalOpen.set(false); this.editing.set(null); }
+openCreate(): void { this.editing.set(null); this.modalOpen.set(true); }
+openEdit(u: User): void { this.editing.set(u); this.modalOpen.set(true); }
+closeModal(): void { this.modalOpen.set(false); this.editing.set(null); }
 
-  onSave(payload: UserPayload): void {
-    const current = this.editing();
-    const op$ = current
-      ? this.service.update(current.id, payload)
-      : this.service.create(payload);
+    onSave(payload: UserPayload): void {
+      const current = this.editing();
+      const op$ = current
+        ? this.service.update(current.id, payload)
+        : this.service.create(payload);
 
-    op$.pipe(
-      catchError(() => { this.error.set('Erro ao salvar usuário.'); return of(null); }),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(() => {
-      this.closeModal();
-      this.filterCtrl.setValue(this.filterCtrl.value);
-    });
-  }
+      op$.pipe(
+        catchError((err) => {
+          console.error('Erro ao salvar:', err);
+          this.error.set('Erro ao salvar usuário.');
+          return EMPTY;                          // 👈 não emite → subscribe não executa
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      ).subscribe(() => {
+        this.closeModal();
+        this.refresh$.next();                    // 👈 AGORA SIM recarrega
+      });
+    }
 }
