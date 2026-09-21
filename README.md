@@ -265,8 +265,8 @@ Use `import 'zone.js/node';` no `src/main.server.ts` (não apenas `zone.js`).
 ## 👤 Autor
 
 **Seu Nome**
-- LinkedIn: [linkedin.com/in/seu-perfil](https://linkedin.com/in/seu-perfil)
-- E-mail: seu@email.com
+- LinkedIn: [[linkedin.com/in/seu-perfil](https://linkedin.com/in/seu-perfil](https://www.linkedin.com/in/joao-paulo-nunes-costa/))
+- E-mail: joaopaulonunescosta@gmail.com
 
 ---
 
